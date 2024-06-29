@@ -25,7 +25,7 @@ class CircularMenu(tk.Tk):
         self.create_donut_buttons()      
         self.create_keybind_list()
         self.create_input_fields_window()
-        # self.input_window.withdraw()
+        self.input_window.withdraw()
         self.is_visible = True
 
         # Start a separate thread to listen for global hotkeys
@@ -73,7 +73,7 @@ class CircularMenu(tk.Tk):
         self.input_window.attributes('-topmost', True)
         self.input_window.wm_attributes('-transparentcolor', 'black') 
 
-        mask_image = ImageTk.PhotoImage(Image.open("rounded_mask.png"))
+        mask_image = ImageTk.PhotoImage(Image.open("src/img/rounded_mask.png"))
         rounded_label = tk.Label(self.input_window, image=mask_image, bg='#333')
         rounded_label.place(x=0, y=0, relwidth=1, relheight=1)
         rounded_label.image = mask_image 
@@ -196,7 +196,7 @@ class CircularMenu(tk.Tk):
             self.show_window()
 
     def setup_system_tray_icon(self):
-        icon_path = "icon.ico"
+        icon_path = "src/img/icon.ico"
         icon_image = Image.open(icon_path)
         self.tray_icon = pystray.Icon('CircularMenu',icon=icon_image,title="CircularMenu",
                             menu=pystray.Menu(
