@@ -3,7 +3,7 @@ import math
 import threading
 import keyboard
 import pystray
-from PIL import Image
+from PIL import Image, ImageTk, ImageDraw
 from .clipboard import *
 
 class CircularMenu(tk.Tk):
@@ -25,7 +25,7 @@ class CircularMenu(tk.Tk):
         self.create_donut_buttons()      
         self.create_keybind_list()
         self.create_input_fields_window()
-        self.input_window.withdraw()
+        # self.input_window.withdraw()
         self.is_visible = True
 
         # Start a separate thread to listen for global hotkeys
@@ -65,23 +65,37 @@ class CircularMenu(tk.Tk):
         self.input_window.geometry(f"+{self.input_window.winfo_x() + deltax}+{self.input_window.winfo_y() + deltay}")
 
     def create_input_fields_window(self):
+        w = 470
+        h = 220
         self.input_window = tk.Toplevel(self)
-        self.input_window.geometry("600x400")
-        self.input_window.configure(bg='grey')
+        self.input_window.geometry(f"{w}x{h}")
         self.input_window.overrideredirect(True)
         self.input_window.attributes('-topmost', True)
+        self.input_window.wm_attributes('-transparentcolor', 'black') 
+
+        mask_image = ImageTk.PhotoImage(Image.open("rounded_mask.png"))
+        rounded_label = tk.Label(self.input_window, image=mask_image, bg='#333')
+        rounded_label.place(x=0, y=0, relwidth=1, relheight=1)
+        rounded_label.image = mask_image 
+
+        frame = tk.Frame(self.input_window, bg='#333')
+        frame.place(x=20, y=20, width=w-50, height=h)
+
+        for i in range(1, 9):
+            label = tk.Label(frame, text=f"Input {i}:", bg='#333', fg='#FFF')
+            label.grid(row=(i-1)//2, column=((i-1)%2)*2, padx=10, pady=10)
+            entry = tk.Entry(frame)
+            entry.grid(row=(i-1)//2, column=((i-1)%2)*2+1, padx=10, pady=10)
+
+        esc_text = "Press Esc to hide this window"
+        esc_label = tk.Label(self.input_window, text=esc_text, bg='#333', fg='#FFF')
+        esc_label.place(relx=0.5, rely=0.95, anchor='s')
+
+
         self.input_window.bind("<Escape>", lambda event: self.input_window.withdraw())
         self.input_window.bind("<Button-1>", self.start_move_input_fields)
         self.input_window.bind("<B1-Motion>", self.do_move_input_fields)
 
-        frame = tk.Frame(self.input_window, bg='grey')
-        frame.pack(expand=True)
-
-        for i in range(1, 9):
-            label = tk.Label(frame, text=f"Bind {i}:", bg='grey', fg='black', )
-            label.grid(row=(i-1)//2, column=((i-1)%2)*2, padx=10, pady=10)
-            entry = tk.Entry(frame)
-            entry.grid(row=(i-1)//2, column=((i-1)%2)*2+1, padx=10, pady=10)
 
 
     def toggle_input_fields(self):
