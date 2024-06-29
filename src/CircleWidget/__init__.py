@@ -101,7 +101,8 @@ class CircularMenu(tk.Tk):
 
             # Create pie-shaped button
             sector_coords = [center_x, center_y, outer_x1, outer_y1, outer_x2, outer_y2, inner_x2, inner_y2, inner_x1, inner_y1]
-            self.canvas.create_polygon(*sector_coords, fill='blue', outline='', tags=f"section_{i+1}")
+            tag = f"section_{i+1}"
+            self.canvas.create_polygon(*sector_coords, fill='blue', outline='#FFFF00', width=border_width, tags=tag)
             
             # Calculate center for text
             text_radius = (outer_radius + inner_radius) / 2 * .92  # Adjust multiplier to move closer or further from center
@@ -110,10 +111,11 @@ class CircularMenu(tk.Tk):
             text_y = center_y - text_radius * math.sin(text_angle)
             
             # Create text label
-            self.canvas.create_text(text_x, text_y, text=self.get_text(i+1), fill='#FFFFFF', font=('Arial', 20))
+            self.canvas.create_text(text_x, text_y, text=self.get_text(i+1), fill='#FFFFFF', font=('Arial', 15), tags=tag)
 
             # Bind button click to action
-            self.canvas.tag_bind(f"section_{i+1}", '<Button-1>', lambda event, i=i+1: self.button_action(i))
+            self.canvas.tag_bind(tag, '<Button-1>', lambda event, i=i+1: self.button_action(i))
+
 
     def get_text(self, section_number):
         try:
@@ -156,10 +158,12 @@ class CircularMenu(tk.Tk):
     def setup_system_tray_icon(self):
         icon_path = "icon_white.ico"
         icon_image = Image.open(icon_path)
-        
-        menu = pystray.Menu(pystray.MenuItem("Open/Close Menu", lambda: self.toggle_visibility()), pystray.MenuItem("Exit", lambda: self.exit()))
-        self.tray_icon = pystray.Icon("CircularMenu", icon_image, "Circular Menu", menu)
-
+        self.tray_icon = pystray.Icon('CircularMenu',icon=icon_image,title="CircularMenu",
+                            menu=pystray.Menu(
+                                pystray.MenuItem(text="Left-Click-Action", action=lambda:self.toggle_visibility(), default=True, visible=False ),
+                                pystray.MenuItem("Open/Close Menu", lambda: self.toggle_visibility()), 
+                                pystray.MenuItem("Exit", lambda: self.exit())
+        ))
         self.tray_thread = threading.Thread(target=self.tray_icon.run)
         self.tray_thread.daemon = True
         self.tray_thread.start()
