@@ -1,5 +1,6 @@
 import json
 path = 'src/json/clipboard_data.json'
+
 def get_clipboard_data():
     global path
     with open(path, 'r') as f:
@@ -8,10 +9,12 @@ def get_clipboard_data():
             data[int(key)] = data.pop(key)
         return data
     
-def set_new_bind(data):
+def set_new_bind(bind, value):
     global path
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=4)
+    data = get_clipboard_data()
+    data[bind] = value
+    save(path, data)
+
 
 def load(path):
         try:
@@ -24,6 +27,6 @@ def load(path):
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
     
-def save(path):
+def save(path, data):
     with open(path, 'w') as f:
-        json.dump(path, f, indent=4)
+        json.dump(data, f, indent=4)

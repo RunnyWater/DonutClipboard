@@ -5,6 +5,7 @@ import keyboard
 import pystray
 from PIL import Image, ImageTk, ImageDraw
 from .clipboard import *
+import os
 
 class CircularMenu(tk.Tk):
     def __init__(self, data: dict = None):
@@ -25,7 +26,7 @@ class CircularMenu(tk.Tk):
         self.create_donut_buttons()      
         self.create_keybind_list()
         self.create_input_fields_window()
-        self.input_window.withdraw()
+        self.toggle_input_fields()
         self.is_visible = True
 
         # Start a separate thread to listen for global hotkeys
@@ -65,27 +66,35 @@ class CircularMenu(tk.Tk):
         self.input_window.geometry(f"+{self.input_window.winfo_x() + deltax}+{self.input_window.winfo_y() + deltay}")
 
     def create_input_fields_window(self):
-        w = 470
-        h = 220
+        w = 500
+        h = 400
         self.input_window = tk.Toplevel(self)
         self.input_window.geometry(f"{w}x{h}")
         self.input_window.overrideredirect(True)
         self.input_window.attributes('-topmost', True)
-        self.input_window.wm_attributes('-transparentcolor', 'black') 
 
+        if not os.path.exists("src/img/rounded_mask.png"):
+            rounded_mask = Image.new("RGBA", (w, h), 0)
+            draw = ImageDraw.Draw(rounded_mask)
+            draw.rounded_rectangle((0, 0, w, h), radius=30, fill='#333333FF')
+            rounded_mask.save("src/img/rounded_mask.png")
+        
+        self.input_window.wm_attributes('-transparentcolor', '#FFFF00') 
         mask_image = ImageTk.PhotoImage(Image.open("src/img/rounded_mask.png"))
-        rounded_label = tk.Label(self.input_window, image=mask_image, bg='#333')
+        rounded_label = tk.Label(self.input_window, image=mask_image, bg='#FFFF00')
         rounded_label.place(x=0, y=0, relwidth=1, relheight=1)
         rounded_label.image = mask_image 
 
-        frame = tk.Frame(self.input_window, bg='#333')
-        frame.place(x=20, y=20, width=w-50, height=h)
+        frame = tk.Frame(self.input_window, bg='#333333')
+        frame.place(x=20, y=20, width=w-40, height=h-60)
 
         for i in range(1, 9):
-            label = tk.Label(frame, text=f"Input {i}:", bg='#333', fg='#FFF')
-            label.grid(row=(i-1)//2, column=((i-1)%2)*2, padx=10, pady=10)
+            button = tk.Button(frame, text=f"Bind key {i}", command=lambda i=i: self.button_action(i), bg='#333', fg='#FFF',
+                                border=1)
+            button.grid(row=(i-1)//2, column=((i-1)%2)*2, padx=10, pady=10)
             entry = tk.Entry(frame)
             entry.grid(row=(i-1)//2, column=((i-1)%2)*2+1, padx=10, pady=10)
+            
 
         esc_text = "Press Esc to hide this window"
         esc_label = tk.Label(self.input_window, text=esc_text, bg='#333', fg='#FFF')
@@ -100,10 +109,9 @@ class CircularMenu(tk.Tk):
 
     def toggle_input_fields(self):
         if hasattr(self, 'input_window') and self.input_window.winfo_exists():
-            self.input_window.deiconify()  # Show the window if it's hidden
-            self.input_window.lift()  # Bring to front
+            self.input_window.withdraw() 
         else:
-            self.create_input_fields_window()  # Create and show the window
+            self.input_window.deiconify()
 
 
     def create_donut_buttons(self):
@@ -159,7 +167,6 @@ class CircularMenu(tk.Tk):
 
     def get_text(self, section_number):
         try:
-            return section_number # remove
             return self.data[section_number][:7]+'...'
         except KeyError:
             return "Bind it..."
