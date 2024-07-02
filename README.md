@@ -4,9 +4,9 @@ DonutClipboard is a Python application that makes clipboard management easier.
 
 ## Installation
 
-1. Go to the [Releases](https://github.com/YourUsername/DonutClipboard/releases) page.
+1. Go to the [Releases]([https://github.com/YourUsername/DonutClipboard/releases](https://github.com/RunnyWater/DonutClipboard/releases)) page.
 2. Download the latest release (`donut_clipboard.exe`).
-
+3. Extract all
 ## Usage
 
 - Launch the application by double-clicking `donut_clipboard.exe`.
